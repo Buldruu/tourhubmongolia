@@ -1,0 +1,48 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Бүртгэл (sign-up) Firebase Console дээр хаалттай тул
+    // нэвтэрсэн хэрэглэгч бүрийг админ гэж үзнэ.
+    function isAdmin() {
+      return request.auth != null;
+    }
+
+    // Catalog: public read, admin write
+    match /destinations/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /hotels/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /tours/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Bookings: anyone can create (status must start as 'new'), admin manages
+    match /bookings/{id} {
+      allow create: if request.resource.data.status == 'new'
+        && request.resource.data.customer_name is string
+        && request.resource.data.phone is string;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Flight requests: anyone can create, admin manages
+    match /flight_requests/{id} {
+      allow create: if request.resource.data.status == 'new'
+        && request.resource.data.customer_name is string
+        && request.resource.data.phone is string;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Notifications: anyone can create (written together with a booking), admin reads/manages
+    match /admin_notifications/{id} {
+      allow create: if request.resource.data.is_read == false;
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}
