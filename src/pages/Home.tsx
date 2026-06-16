@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -12,7 +13,7 @@ import {
   Award,
   ArrowRight
 } from 'lucide-react';
-import HeroGlobe from '../components/HeroGlobe';
+const HeroGlobe = lazy(() => import('../components/HeroGlobe'));
 import TourCard from '../components/TourCard';
 import DestinationCard from '../components/DestinationCard';
 import { Loading, ErrorState } from '../components/States';
@@ -184,7 +185,9 @@ export default function Home() {
             </motion.div>
           </div>
 
-          <HeroGlobe />
+          <Suspense fallback={<div className="mx-auto aspect-square w-full max-w-[460px]" />}>
+            <HeroGlobe />
+          </Suspense>
         </div>
       </section>
 
